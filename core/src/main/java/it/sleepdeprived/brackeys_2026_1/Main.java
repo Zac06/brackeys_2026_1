@@ -59,7 +59,6 @@ public class Main extends ApplicationAdapter {
         batch.end();
 
     }
-
     @Override
     public void dispose() {
         batch.dispose();
