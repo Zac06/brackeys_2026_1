@@ -14,7 +14,7 @@ public class Player extends Entity {
     private float eyeSpriteShiftX;
     private float eyeSpriteShiftY;
 
-    private static final float eyeSprite_SHIFT = 8f;
+    private static final float eyeSprite_SHIFT = 4f;
 
     private boolean animating = false;  // false = show still, true = cycle frames
     private Direction direction = Direction.CENTER;

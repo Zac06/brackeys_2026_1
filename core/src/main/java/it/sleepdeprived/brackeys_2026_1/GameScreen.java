@@ -22,13 +22,17 @@ public class GameScreen implements Screen {
     // ── constants ────────────────────────────────────────────────────────────
     private static final float PX_PER_TILE          = 32f;
     private static final float PLAYER_SPEED         = 4f;
-    private static final float PLAYER_W             = 56f;
-    private static final float PLAYER_H             = 64f;
+    private static final float PLAYER_W             = 28f;
+    private static final float PLAYER_H             = 32f;
     private static final float PLAYER_START_X       = 30f;
     private static final float PLAYER_START_Y       = 560f;
-    private static final float PLAYER_EYE_OFFSET_X  = PLAYER_W / 2 - 8;
-    private static final float PLAYER_EYE_OFFSET_Y  = PLAYER_H / 2 + 12;
+    private static final float PLAYER_EYE_OFFSET_X  = PLAYER_W / 2 - 4;
+    private static final float PLAYER_EYE_OFFSET_Y  = PLAYER_H / 2 + 6;
     private static final float PLAYER_ANIMATION_DELAY = 0.1f;
+
+    private static final float MAP_WIDTH  = 40 * PX_PER_TILE;
+    private static final float MAP_HEIGHT = 22 * PX_PER_TILE;
+
 
     // ── fields ────────────────────────────────────────────────────────────────
     private final Main game;
@@ -58,17 +62,19 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         camera   = new OrthographicCamera();
+        camera.zoom=0.5f;
+
         viewport = new FitViewport(1280, 704, camera);
         batch    = new SpriteBatch();
 
         // Load map (1 = first_level, 2 = second_level, 3 = third_level)
-        String levelPath = loadMapFromText(2);
+        String levelPath = loadMapFromText(1);
         levelTex = new Texture(levelPath);
-        levelTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        levelTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
 
         // Player still sprite
         stillTex = new Texture("player/still.png");
-        stillTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        stillTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
         Sprite stillSprite = new Sprite(stillTex);
 
         // Walking animation sprites
@@ -84,7 +90,7 @@ public class GameScreen implements Screen {
 
         // Eye sprite
         eyeTex = new Texture("player/eyes.png");
-        eyeTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        eyeTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
         Sprite eyeSprite = new Sprite(eyeTex);
 
         player = new Player(
@@ -103,10 +109,14 @@ public class GameScreen implements Screen {
         handleInput();
         checkCollisionPlayerMap();
 
-        Gdx.gl.glClearColor(0.15f, 0.15f, 0.2f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.position.set(
+            player.getX() + PLAYER_W / 2f,
+            player.getY() + PLAYER_H / 2f,
+            0
+        );
 
-        camera.update();
+        //camera.update();
+        updateCamera();
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
@@ -161,6 +171,22 @@ public class GameScreen implements Screen {
         if (dx < 0)            return Direction.WEST;
         if (dy > 0)            return Direction.NORTH;
         return Direction.SOUTH;
+    }
+
+    private void updateCamera() {
+        float targetX = player.getX() + PLAYER_W / 2f;
+        float targetY = player.getY() + PLAYER_H / 2f;
+
+        float halfW = viewport.getWorldWidth()  * camera.zoom / 2f;
+        float halfH = viewport.getWorldHeight() * camera.zoom / 2f;
+
+        camera.position.set(targetX, targetY, 0);
+
+        // ── clamp camera to map borders ──
+        camera.position.x = Math.max(halfW, Math.min(camera.position.x, MAP_WIDTH  - halfW));
+        camera.position.y = Math.max(halfH, Math.min(camera.position.y, MAP_HEIGHT - halfH));
+
+        camera.update();
     }
 
     // ── map loading ───────────────────────────────────────────────────────────
