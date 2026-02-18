@@ -10,12 +10,7 @@ import java.io.BufferedReader;
 import java.util.Scanner;
 
 public class Level {
-    //classe temporanea
-
-    //sono andato a messa bye
-
     public static final float PX_PER_TILE = 32f;
-    //public static final float PLAYER_SPEED = 4f;
 
     private float playerStartX;
     private float playerStartY;
@@ -30,13 +25,13 @@ public class Level {
     private Texture levelTex;
 
     public Level(int levelNumber) {
-        String levelPath=loadMapFromText(levelNumber);
-        levelTex=new Texture(levelPath);
+        String levelPath = loadMapFromText(levelNumber);
+        levelTex = new Texture(levelPath);
         levelTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(levelTex, 0,0);
+        batch.draw(levelTex, 0, 0);
     }
 
     /**
@@ -68,7 +63,7 @@ public class Level {
             try (BufferedReader in = new BufferedReader(Gdx.files.internal(txtPath).reader())) {
                 int row = 0;
                 String line;
-                while ((line = in.readLine()) != null && row<22) {
+                while ((line = in.readLine()) != null && row < 22) {
                     int col = 0;
                     Scanner sc = new Scanner(line);
                     while (sc.hasNextInt()) {
@@ -80,8 +75,12 @@ public class Level {
                 String coordLine = in.readLine();
                 if (coordLine != null) {
                     Scanner sc = new Scanner(coordLine);
-                    if (sc.hasNextInt()) playerStartX = sc.nextInt();
-                    if (sc.hasNextInt()) playerStartY = sc.nextInt();
+                    if (sc.hasNextInt()) {
+                        playerStartX = sc.nextInt();
+                    }
+                    if (sc.hasNextInt()) {
+                        playerStartY = sc.nextInt();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -124,8 +123,8 @@ public class Level {
         return playerStartY;
     }
 
-    public void dispose(){
-        if(levelTex != null){
+    public void dispose() {
+        if (levelTex != null) {
             levelTex.dispose();
         }
     }
