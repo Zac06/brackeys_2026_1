@@ -20,17 +20,17 @@ import java.util.Scanner;
 public class GameScreen implements Screen {
 
     // ── constants ────────────────────────────────────────────────────────────
-    private static final float PX_PER_TILE          = 32f;
-    private static final float PLAYER_SPEED         = 4f;
-    private static final float PLAYER_W             = 28f;
-    private static final float PLAYER_H             = 32f;
-    private static final float PLAYER_START_X       = 30f;
-    private static final float PLAYER_START_Y       = 560f;
-    private static final float PLAYER_EYE_OFFSET_X  = PLAYER_W / 2 - 4;
-    private static final float PLAYER_EYE_OFFSET_Y  = PLAYER_H / 2 + 6;
+    private static final float PX_PER_TILE = 32f;
+    private static final float PLAYER_SPEED = 4f;
+    private static final float PLAYER_W = 28f;
+    private static final float PLAYER_H = 32f;
+    private static final float PLAYER_START_X = 30f;
+    private static final float PLAYER_START_Y = 560f;
+    private static final float PLAYER_EYE_OFFSET_X = PLAYER_W / 2 - 4;
+    private static final float PLAYER_EYE_OFFSET_Y = PLAYER_H / 2 + 6;
     private static final float PLAYER_ANIMATION_DELAY = 0.1f;
 
-    private static final float MAP_WIDTH  = 40 * PX_PER_TILE;
+    private static final float MAP_WIDTH = 40 * PX_PER_TILE;
     private static final float MAP_HEIGHT = 22 * PX_PER_TILE;
 
 
@@ -50,8 +50,8 @@ public class GameScreen implements Screen {
     private Player player;
 
     // map / collision
-    private Array<Rectangle> borders     = new Array<>();
-    private Rectangle         intersection = new Rectangle();
+    private Array<Rectangle> borders = new Array<>();
+    private Rectangle intersection = new Rectangle();
 
     // ── constructor ───────────────────────────────────────────────────────────
     public GameScreen(Main game) {
@@ -61,36 +61,36 @@ public class GameScreen implements Screen {
     // ── Screen lifecycle ──────────────────────────────────────────────────────
     @Override
     public void show() {
-        camera   = new OrthographicCamera();
-        camera.zoom=0.5f;
+        camera = new OrthographicCamera();
+        camera.zoom = 0.5f;
 
         viewport = new FitViewport(1280, 704, camera);
-        batch    = new SpriteBatch();
+        batch = new SpriteBatch();
 
         // Load map (1 = first_level, 2 = second_level, 3 = third_level)
         String levelPath = loadMapFromText(1);
         levelTex = new Texture(levelPath);
-        levelTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
+        levelTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         // Player still sprite
         stillTex = new Texture("player/still.png");
-        stillTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
+        stillTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         Sprite stillSprite = new Sprite(stillTex);
 
         // Walking animation sprites
         animationTextures = new Array<>();
         Array<Sprite> animationSprites = new Array<>();
-        String[] animPaths = { "player/animation1.png", "player/animation2.png" };
+        String[] animPaths = {"player/animation1.png", "player/animation2.png"};
         for (String path : animPaths) {
             Texture t = new Texture(path);
-            t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
+            t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             animationTextures.add(t);
             animationSprites.add(new Sprite(t));
         }
 
         // Eye sprite
         eyeTex = new Texture("player/eyes.png");
-        eyeTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest);
+        eyeTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         Sprite eyeSprite = new Sprite(eyeTex);
 
         player = new Player(
@@ -106,6 +106,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         handleInput();
         checkCollisionPlayerMap();
 
@@ -139,9 +142,17 @@ public class GameScreen implements Screen {
         for (Texture t : animationTextures) t.dispose();
     }
 
-    @Override public void pause()  {}
-    @Override public void resume() {}
-    @Override public void hide()   {}
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
 
     // ── input ─────────────────────────────────────────────────────────────────
     private void handleInput() {
@@ -167,9 +178,9 @@ public class GameScreen implements Screen {
         if (dx > 0 && dy < 0) return Direction.SOUTH_EAST;
         if (dx < 0 && dy > 0) return Direction.NORTH_WEST;
         if (dx < 0 && dy < 0) return Direction.SOUTH_WEST;
-        if (dx > 0)            return Direction.EAST;
-        if (dx < 0)            return Direction.WEST;
-        if (dy > 0)            return Direction.NORTH;
+        if (dx > 0) return Direction.EAST;
+        if (dx < 0) return Direction.WEST;
+        if (dy > 0) return Direction.NORTH;
         return Direction.SOUTH;
     }
 
@@ -177,13 +188,13 @@ public class GameScreen implements Screen {
         float targetX = player.getX() + PLAYER_W / 2f;
         float targetY = player.getY() + PLAYER_H / 2f;
 
-        float halfW = viewport.getWorldWidth()  * camera.zoom / 2f;
+        float halfW = viewport.getWorldWidth() * camera.zoom / 2f;
         float halfH = viewport.getWorldHeight() * camera.zoom / 2f;
 
         camera.position.set(targetX, targetY, 0);
 
         // ── clamp camera to map borders ──
-        camera.position.x = Math.max(halfW, Math.min(camera.position.x, MAP_WIDTH  - halfW));
+        camera.position.x = Math.max(halfW, Math.min(camera.position.x, MAP_WIDTH - halfW));
         camera.position.y = Math.max(halfH, Math.min(camera.position.y, MAP_HEIGHT - halfH));
 
         camera.update();
@@ -201,10 +212,17 @@ public class GameScreen implements Screen {
     private String loadMapFromText(int map) {
         String txtPath;
         switch (map) {
-            case 1:  txtPath = "first_level.txt";  break;
-            case 2:  txtPath = "second_level.txt"; break;
-            case 3:  txtPath = "third_level.txt";  break;
-            default: throw new IllegalArgumentException("Unknown map index: " + map);
+            case 1:
+                txtPath = "first_level.txt";
+                break;
+            case 2:
+                txtPath = "second_level.txt";
+                break;
+            case 3:
+                txtPath = "third_level.txt";
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown map index: " + map);
         }
 
         int[][] matrix = new int[22][40];
