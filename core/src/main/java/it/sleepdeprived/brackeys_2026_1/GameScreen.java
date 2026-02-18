@@ -18,20 +18,13 @@ import java.io.BufferedReader;
 import java.util.Scanner;
 
 public class GameScreen implements Screen {
-
-    // ── constants ────────────────────────────────────────────────────────────
-    private static final float PX_PER_TILE = 32f;
     private static final float PLAYER_SPEED = 4f;
     private static final float PLAYER_W = 28f;
     private static final float PLAYER_H = 32f;
-    private static final float PLAYER_START_X = 30f;
-    private static final float PLAYER_START_Y = 560f;
+
     private static final float PLAYER_EYE_OFFSET_X = PLAYER_W / 2 - 4;
     private static final float PLAYER_EYE_OFFSET_Y = PLAYER_H / 2 + 6;
     private static final float PLAYER_ANIMATION_DELAY = 0.1f;
-
-    private static final float MAP_WIDTH = 40 * PX_PER_TILE;
-    private static final float MAP_HEIGHT = 22 * PX_PER_TILE;
 
 
     // ── fields ────────────────────────────────────────────────────────────────
@@ -42,16 +35,16 @@ public class GameScreen implements Screen {
     private Viewport viewport;
 
     // textures (kept so we can dispose them)
-    private Texture levelTex;
+    //private Texture levelTex;
+
+    // player textures, to keep in gamescreen
     private Texture stillTex;
     private Texture eyeTex;
     private Array<Texture> animationTextures;
 
     private Player player;
+    private Level level;
 
-    // map / collision
-    private Array<Rectangle> borders = new Array<>();
-    private Rectangle intersection = new Rectangle();
 
     // ── constructor ───────────────────────────────────────────────────────────
     public GameScreen(Main game) {
@@ -61,47 +54,17 @@ public class GameScreen implements Screen {
     // ── Screen lifecycle ──────────────────────────────────────────────────────
     @Override
     public void show() {
+        //sets up the camera
         camera = new OrthographicCamera();
         camera.zoom = 0.5f;
 
+        //sets up rendering shenenigans
         viewport = new FitViewport(1280, 704, camera);
         batch = new SpriteBatch();
 
-        // Load map (1 = first_level, 2 = second_level, 3 = third_level)
-        String levelPath = loadMapFromText(1);
-        levelTex = new Texture(levelPath);
-        levelTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        level=new Level(3);
 
-        // Player still sprite
-        stillTex = new Texture("player/still.png");
-        stillTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        Sprite stillSprite = new Sprite(stillTex);
-
-        // Walking animation sprites
-        animationTextures = new Array<>();
-        Array<Sprite> animationSprites = new Array<>();
-        String[] animPaths = {"player/animation1.png", "player/animation2.png"};
-        for (String path : animPaths) {
-            Texture t = new Texture(path);
-            t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-            animationTextures.add(t);
-            animationSprites.add(new Sprite(t));
-        }
-
-        // Eye sprite
-        eyeTex = new Texture("player/eyes.png");
-        eyeTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        Sprite eyeSprite = new Sprite(eyeTex);
-
-        player = new Player(
-            PLAYER_START_X, PLAYER_START_Y,
-            PLAYER_W, PLAYER_H,
-            stillSprite,
-            animationSprites,
-            eyeSprite,
-            PLAYER_EYE_OFFSET_X, PLAYER_EYE_OFFSET_Y,
-            PLAYER_ANIMATION_DELAY
-        );
+        loadPlayer();
     }
 
     @Override
@@ -123,7 +86,7 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        batch.draw(levelTex, 0, 0);
+        level.draw(batch);
         player.draw(batch, delta);
         batch.end();
     }
@@ -136,9 +99,12 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        levelTex.dispose();
+
+        level.dispose();
+
         stillTex.dispose();
         eyeTex.dispose();
+
         for (Texture t : animationTextures) t.dispose();
     }
 
@@ -194,78 +160,49 @@ public class GameScreen implements Screen {
         camera.position.set(targetX, targetY, 0);
 
         // ── clamp camera to map borders ──
-        camera.position.x = Math.max(halfW, Math.min(camera.position.x, MAP_WIDTH - halfW));
-        camera.position.y = Math.max(halfH, Math.min(camera.position.y, MAP_HEIGHT - halfH));
+        camera.position.x = Math.max(halfW, Math.min(camera.position.x, Level.MAP_WIDTH - halfW));
+        camera.position.y = Math.max(halfH, Math.min(camera.position.y, Level.MAP_HEIGHT - halfH));
 
         camera.update();
     }
 
-    // ── map loading ───────────────────────────────────────────────────────────
+    private void loadPlayer(){
+        stillTex = new Texture("player/still.png");
+        stillTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        Sprite stillSprite = new Sprite(stillTex);
 
-    /**
-     * Reads the tile map for the given level number, populates {@code borders},
-     * and returns the path to the matching PNG background.
-     *
-     * @param map 1 = first_level, 2 = second_level, 3 = third_level
-     * @return path to the level PNG (e.g. "first_level.png")
-     */
-    private String loadMapFromText(int map) {
-        String txtPath;
-        switch (map) {
-            case 1:
-                txtPath = "first_level.txt";
-                break;
-            case 2:
-                txtPath = "second_level.txt";
-                break;
-            case 3:
-                txtPath = "third_level.txt";
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown map index: " + map);
+        // Walking animation sprites
+        animationTextures = new Array<>();
+        Array<Sprite> animationSprites = new Array<>();
+        String[] animPaths = {"player/animation1.png", "player/animation2.png"};
+        for (String path : animPaths) {
+            Texture t = new Texture(path);
+            t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            animationTextures.add(t);
+            animationSprites.add(new Sprite(t));
         }
 
-        int[][] matrix = new int[22][40];
+        // Eye sprite
+        eyeTex = new Texture("player/eyes.png");
+        eyeTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        Sprite eyeSprite = new Sprite(eyeTex);
 
-        if (Gdx.files.internal(txtPath).exists()) {
-            try (BufferedReader in = new BufferedReader(Gdx.files.internal(txtPath).reader())) {
-                int row = 0;
-                String line;
-                while ((line = in.readLine()) != null) {
-                    int col = 0;
-                    Scanner sc = new Scanner(line);
-                    while (sc.hasNextInt()) {
-                        matrix[row][col++] = sc.nextInt();
-                    }
-                    row++;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            loadMapBorders(matrix);
-        }
-
-        // Strip ".txt" → ".png"
-        return txtPath.substring(0, txtPath.length() - 3) + "png";
-    }
-
-    private void loadMapBorders(int[][] mapGrid) {
-        borders.clear();
-        int rows = mapGrid.length;
-        int cols = mapGrid[0].length;
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                if (mapGrid[row][col] == 1) {
-                    float bx = col * PX_PER_TILE;
-                    float by = (rows - 1 - row) * PX_PER_TILE; // flip Y axis
-                    borders.add(new Rectangle(bx, by, PX_PER_TILE, PX_PER_TILE));
-                }
-            }
-        }
+        player = new Player(
+            level.getPlayerStartX(), level.getPlayerStartY(),
+            PLAYER_W, PLAYER_H,
+            stillSprite,
+            animationSprites,
+            eyeSprite,
+            PLAYER_EYE_OFFSET_X, PLAYER_EYE_OFFSET_Y,
+            PLAYER_ANIMATION_DELAY
+        );
     }
 
     // ── collision ─────────────────────────────────────────────────────────────
     private void checkCollisionPlayerMap() {
+        Array<Rectangle> borders=level.getBorders();
+        Rectangle intersection=level.getIntersection();
+
         Rectangle playerRect = player.getHitbox();
         for (Rectangle wall : borders) {
             if (Intersector.intersectRectangles(playerRect, wall, intersection)) {
