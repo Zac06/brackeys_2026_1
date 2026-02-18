@@ -17,8 +17,8 @@ public class Level {
     public static final float PX_PER_TILE = 32f;
     //public static final float PLAYER_SPEED = 4f;
 
-    private float playerStartX=96;
-    private float playerStartY=96;
+    private float playerStartX;
+    private float playerStartY;
 
     public static final float MAP_WIDTH = 40 * PX_PER_TILE;
     public static final float MAP_HEIGHT = 22 * PX_PER_TILE;
