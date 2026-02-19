@@ -27,7 +27,7 @@ public class Level {
 
     public Level(int levelNumber) {
         String levelPath = loadMapFromText(levelNumber);
-        levelTex = new Texture(levelPath);
+        levelTex = new Texture(Gdx.files.internal(levelPath));
         levelTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
@@ -44,6 +44,7 @@ public class Level {
      */
     private String loadMapFromText(int map) {
         borders.clear();
+
         String txtPath;
         switch (map) {
             case 1:
@@ -64,6 +65,7 @@ public class Level {
             default:
                 throw new IllegalArgumentException("Unknown map index: " + map);
         }
+
         switch (map){
             case 1,3:
                 borders.add(new Rectangle(PX_PER_TILE*-2,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));

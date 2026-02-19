@@ -192,7 +192,7 @@ public class GameScreen implements Screen {
     }
 
     private void loadPlayer() {
-        stillTex = new Texture("player/still.png");
+        stillTex = new Texture(Gdx.files.internal("player/still.png"));
         stillTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         Sprite stillSprite = new Sprite(stillTex);
 
@@ -201,14 +201,14 @@ public class GameScreen implements Screen {
         Array<Sprite> animationSprites = new Array<>();
         String[] animPaths = {"player/animation1.png", "player/animation2.png"};
         for (String path : animPaths) {
-            Texture t = new Texture(path);
+            Texture t = new Texture(Gdx.files.internal(path));
             t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             animationTextures.add(t);
             animationSprites.add(new Sprite(t));
         }
 
         // Eye sprite
-        eyeTex = new Texture("player/eyes.png");
+        eyeTex = new Texture(Gdx.files.internal("player/eyes.png"));
         eyeTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         Sprite eyeSprite = new Sprite(eyeTex);
 

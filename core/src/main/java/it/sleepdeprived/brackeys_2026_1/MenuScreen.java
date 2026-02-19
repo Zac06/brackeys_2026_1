@@ -36,15 +36,15 @@ public class MenuScreen implements Screen {
         camera = new OrthographicCamera();
         viewport = new FitViewport(WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT, camera);
         batch = new SpriteBatch();
-        background = new Texture("homebg.png");
+        background = new Texture(Gdx.files.internal("homebg.png"));
 
-        startButtonTexture = new TextureRegionDrawable(new Texture("startbutton.png"));
+        startButtonTexture = new TextureRegionDrawable(new Texture(Gdx.files.internal("startbutton.png")));
         startButtonTexture.setTopHeight(12);
 
-        startButtonHoverTexture = new TextureRegionDrawable(new Texture("startbutton-hover.png"));
+        startButtonHoverTexture = new TextureRegionDrawable(new Texture(Gdx.files.internal("startbutton-hover.png")));
         startButtonHoverTexture.setTopHeight(10);
 
-        Texture titleTexture=new Texture("title.png");
+        Texture titleTexture=new Texture(Gdx.files.internal("title.png"));
         titleTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         title = new Sprite(titleTexture);
 
