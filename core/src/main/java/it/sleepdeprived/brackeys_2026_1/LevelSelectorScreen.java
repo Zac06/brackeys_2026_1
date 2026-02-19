@@ -71,7 +71,7 @@ public class LevelSelectorScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("ciao");
-                game.setScreen(new GameScreen(game));
+                //game.setScreen(new GameScreen(game));
             }
         });
         stage.addActor(startBtn);
@@ -87,6 +87,9 @@ public class LevelSelectorScreen implements Screen {
         batch.begin();
 
         batch.end();
+
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -115,7 +118,7 @@ public class LevelSelectorScreen implements Screen {
             throw new IllegalArgumentException("invalid level number");
         }
 
-        levelBtnTexture=new Texture("level"+levelNumber+"btn.png");
-        levelBtnTextureHover=new Texture("level"+levelNumber+"btnh.png");
+        levelBtnTexture=new Texture(Gdx.files.internal("levelselector/level"+levelNumber+"btn.png"));
+        levelBtnTextureHover=new Texture(Gdx.files.internal("levelselector/level"+levelNumber+"btnh.png"));
     }
 }
