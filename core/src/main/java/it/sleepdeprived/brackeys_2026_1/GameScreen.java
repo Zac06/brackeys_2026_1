@@ -44,6 +44,7 @@ public class GameScreen implements Screen {
 
     private Player player;
     private Level level;
+    private int levelNumber;
 
     private int uscito = 2; // controlla se il player esce dalla mappa o non
     /*
@@ -55,6 +56,12 @@ public class GameScreen implements Screen {
     // ── constructor ───────────────────────────────────────────────────────────
     public GameScreen(Main game) {
         this.game = game;
+        this.levelNumber = 1;
+    }
+
+    public GameScreen(Main game, int levelNumber) {
+        this.game = game;
+        this.levelNumber = levelNumber;
     }
 
     // ── Screen lifecycle ──────────────────────────────────────────────────────
@@ -68,14 +75,14 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT, camera);
         batch = new SpriteBatch();
 
-        level=new Level(2);
+        level = new Level(levelNumber);
 
         loadPlayer();
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(207/255f, 219/255f, 114/255f, 1);
+        Gdx.gl.glClearColor(207 / 255f, 219 / 255f, 114 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         handleInput();
@@ -104,14 +111,26 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
+        if (level != null) {
+            level.dispose();
+        }
 
-        level.dispose();
+        if (stillTex != null) {
+            stillTex.dispose();
+        }
+        if (eyeTex != null) {
+            eyeTex.dispose();
+        }
 
-        stillTex.dispose();
-        eyeTex.dispose();
+        for (Texture t : animationTextures) {
+            if (t != null) {
+                t.dispose();
+            }
 
-        for (Texture t : animationTextures) t.dispose();
+        }
     }
 
     @Override
@@ -172,7 +191,7 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
-    private void loadPlayer(){
+    private void loadPlayer() {
         stillTex = new Texture("player/still.png");
         stillTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         Sprite stillSprite = new Sprite(stillTex);
@@ -206,15 +225,19 @@ public class GameScreen implements Screen {
 
     // ── collision ─────────────────────────────────────────────────────────────
     private void checkCollisionPlayerMap() {
-        Array<Rectangle> borders=level.getBorders();
-        Rectangle intersection=level.getIntersection();
+        Array<Rectangle> borders = level.getBorders();
+        Rectangle intersection = level.getIntersection();
 
         Rectangle playerRect = player.getHitbox();
 
-        if(player.getX()<-30 || player.getX()>Gdx.graphics.getWidth()){
-            if(player.getX()<-30) uscito = 0;
-            else{uscito = 1;}
-        }else{uscito = 2;}
+        if (player.getX() < -30 || player.getX() > Gdx.graphics.getWidth()) {
+            if (player.getX() < -30) uscito = 0;
+            else {
+                uscito = 1;
+            }
+        } else {
+            uscito = 2;
+        }
 
         for (Rectangle wall : borders) {
             if (Intersector.intersectRectangles(playerRect, wall, intersection)) {
@@ -235,7 +258,10 @@ public class GameScreen implements Screen {
                 }
             }
         }
-            System.out.println("u: "+uscito);
+        System.out.println("u: " + uscito);
     }
-    public int getUscito(){return this.uscito;}
+
+    public int getUscito() {
+        return this.uscito;
+    }
 }
