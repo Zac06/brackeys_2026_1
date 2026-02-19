@@ -25,7 +25,7 @@ Ho inserito tra i file assets/ui/
 
 //  Rectangle(x,y,width,height)
 
-// dimensioni schermo : 1280 704
+// dimensioni schermo : WindowProperties.WIN_WIDTH WindowProperties.WIN_HEIGHT
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

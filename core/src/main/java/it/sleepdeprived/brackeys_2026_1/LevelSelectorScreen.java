@@ -49,7 +49,7 @@ public class LevelSelectorScreen implements Screen {
         camera = new OrthographicCamera();
 
         //sets up rendering shenenigans
-        viewport = new FitViewport(1280, 704, camera);
+        viewport = new FitViewport(WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT, camera);
         batch = new SpriteBatch();
 
         loadLevelTexture(currentLevelNumber);
@@ -64,8 +64,8 @@ public class LevelSelectorScreen implements Screen {
         Button startBtn = new Button(startBtnStyle);
         startBtn.setSize(startBtn.getWidth() * 8f, startBtn.getHeight() * 8f);
         startBtn.setPosition(
-            (1280 + startBtn.getWidth()) / 2f,
-            (704 + startBtn.getHeight()) / 2f
+            (WindowProperties.WIN_WIDTH - startBtn.getWidth()) / 2f,
+            (WindowProperties.WIN_HEIGHT - startBtn.getHeight()) / 2f
         );
         startBtn.addListener(new ClickListener() {
             @Override

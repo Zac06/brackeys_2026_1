@@ -3,6 +3,7 @@ package it.sleepdeprived.brackeys_2026_1.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import it.sleepdeprived.brackeys_2026_1.Main;
+import it.sleepdeprived.brackeys_2026_1.WindowProperties;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -28,7 +29,7 @@ public class Lwjgl3Launcher {
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
 
-        configuration.setWindowedMode(1280, 704);
+        configuration.setWindowedMode(WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");

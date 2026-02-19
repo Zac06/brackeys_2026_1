@@ -34,7 +34,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         camera = new OrthographicCamera();
-        viewport = new FitViewport(1280, 704, camera);
+        viewport = new FitViewport(WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT, camera);
         batch = new SpriteBatch();
         background = new Texture("homebg.png");
 
@@ -59,8 +59,8 @@ public class MenuScreen implements Screen {
         TextButton startButton = new TextButton("START", buttonStyle);
         startButton.setSize(startButton.getWidth() * 2f, startButton.getHeight() * 2f);
         startButton.setPosition(
-            (1280 - 200) / 2f,
-            (704 - 60) / 2f
+            (WindowProperties.WIN_WIDTH - 200) / 2f,
+            (WindowProperties.WIN_HEIGHT - 60) / 2f
         );
         startButton.addListener(new ClickListener() {
             @Override
@@ -76,7 +76,7 @@ public class MenuScreen implements Screen {
         Label credits = new Label("by sleepdeprived duo", labelStyle);
 
         credits.setAlignment(Align.right);
-        credits.setPosition(1280 - credits.getPrefWidth() - 16, 16);
+        credits.setPosition(WindowProperties.WIN_WIDTH - credits.getPrefWidth() - 16, 16);
         stage.addActor(credits);
     }
 
@@ -90,9 +90,9 @@ public class MenuScreen implements Screen {
 
         // Draw background splash
         batch.begin();
-        batch.draw(background, 0, 0, 1280, 704);
+        batch.draw(background, 0, 0, WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT);
 
-        batch.draw(title, Math.round((1280 - title.getWidth()) / 2f), 500);
+        batch.draw(title, Math.round((WindowProperties.WIN_WIDTH - title.getWidth()) / 2f), 500);
         batch.end();
 
         // Draw UI on top

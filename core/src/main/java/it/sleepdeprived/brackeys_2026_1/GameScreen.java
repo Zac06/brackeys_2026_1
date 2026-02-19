@@ -65,7 +65,7 @@ public class GameScreen implements Screen {
         camera.zoom = 0.5f;
 
         //sets up rendering shenenigans
-        viewport = new FitViewport(1280, 704, camera);
+        viewport = new FitViewport(WindowProperties.WIN_WIDTH, WindowProperties.WIN_HEIGHT, camera);
         batch = new SpriteBatch();
 
         level=new Level(2);
