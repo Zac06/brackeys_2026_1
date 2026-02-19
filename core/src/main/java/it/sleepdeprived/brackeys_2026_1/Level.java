@@ -22,6 +22,7 @@ public class Level {
     private Array<Rectangle> borders = new Array<>();
     private Rectangle intersection = new Rectangle();
 
+
     private Texture levelTex;
 
     public Level(int levelNumber) {
@@ -42,19 +43,42 @@ public class Level {
      * @return path to the level PNG (e.g. "first_level.png")
      */
     private String loadMapFromText(int map) {
+        borders.clear();
         String txtPath;
         switch (map) {
             case 1:
                 txtPath = "first_level.txt";
+                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*2,PX_PER_TILE,PX_PER_TILE*2));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*4,PX_PER_TILE,PX_PER_TILE));
                 break;
             case 2:
                 txtPath = "second_level.txt";
                 break;
             case 3:
                 txtPath = "third_level.txt";
+                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*2,PX_PER_TILE,PX_PER_TILE*3));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*5,PX_PER_TILE,PX_PER_TILE));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown map index: " + map);
+        }
+        switch (map){
+            case 1,3:
+                borders.add(new Rectangle(PX_PER_TILE*-2,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));
+                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*20,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*16,PX_PER_TILE,PX_PER_TILE));
+                break;
+            case 2:
+                borders.add(new Rectangle(PX_PER_TILE*-2,PX_PER_TILE*2,PX_PER_TILE,PX_PER_TILE*3));
+                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*5,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
+
+                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*20,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*16,PX_PER_TILE,PX_PER_TILE));
+                break;
         }
 
         int[][] matrix = new int[22][40];
@@ -93,7 +117,7 @@ public class Level {
     }
 
     private void loadMapBorders(int[][] mapGrid) {
-        borders.clear();
+
         int rows = mapGrid.length;
         int cols = mapGrid[0].length;
         for (int row = 0; row < rows; row++) {

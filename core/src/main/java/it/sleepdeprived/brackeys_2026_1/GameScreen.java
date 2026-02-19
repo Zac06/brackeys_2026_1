@@ -45,6 +45,12 @@ public class GameScreen implements Screen {
     private Player player;
     private Level level;
 
+    private int uscito = 2; // controlla se il player esce dalla mappa o non
+    /*
+        0 --> uscito a sx (inizio)
+        1 --> uscito a dx (fine)
+        2 --> non uscito (player dentro alla mappa)
+     */
 
     // ── constructor ───────────────────────────────────────────────────────────
     public GameScreen(Main game) {
@@ -62,7 +68,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(1280, 704, camera);
         batch = new SpriteBatch();
 
-        level=new Level(3);
+        level=new Level(2);
 
         loadPlayer();
     }
@@ -204,6 +210,12 @@ public class GameScreen implements Screen {
         Rectangle intersection=level.getIntersection();
 
         Rectangle playerRect = player.getHitbox();
+
+        if(player.getX()<-30 || player.getX()>Gdx.graphics.getWidth()){
+            if(player.getX()<-30) uscito = 0;
+            else{uscito = 1;}
+        }else{uscito = 2;}
+
         for (Rectangle wall : borders) {
             if (Intersector.intersectRectangles(playerRect, wall, intersection)) {
                 if (intersection.height > intersection.width) {
@@ -223,5 +235,7 @@ public class GameScreen implements Screen {
                 }
             }
         }
+            System.out.println("u: "+uscito);
     }
+    public int getUscito(){return this.uscito;}
 }
