@@ -64,6 +64,7 @@ public class LevelSelectorScreen implements Screen {
     public void render(float delta) {
         UnifiedColorClearer.clear();
 
+        camera.update();
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();

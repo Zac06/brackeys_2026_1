@@ -229,14 +229,16 @@ public class GameScreen implements Screen {
 
         Rectangle playerRect = player.getHitbox();
 
-        if (player.getX() < -30 || player.getX() > Gdx.graphics.getWidth()) {
-            if (player.getX() < -30) uscito = 0;
-            else {
-                uscito = 1;
-            }
-        } else {
-            uscito = 2;
+        if(player.getX()<-30){
+            uscito=0;
+            game.setScreen(new ExitScreen(game, "Wrong exit! :(", levelNumber, 2000));
+        }else if(player.getX()>WindowProperties.WIN_WIDTH){
+            uscito=1;
+            game.setScreen(new ExitScreen(game, "You passed the level! :)", levelNumber, 2000));
+        }else{
+            uscito=2;
         }
+
 
         for (Rectangle wall : borders) {
             if (Intersector.intersectRectangles(playerRect, wall, intersection)) {

@@ -55,6 +55,10 @@ public class Level {
                 break;
             case 2:
                 txtPath = "second_level.txt";
+
+                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*20,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*16,PX_PER_TILE,PX_PER_TILE));
                 break;
             case 3:
                 txtPath = "third_level.txt";
@@ -77,9 +81,6 @@ public class Level {
                 borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*5,PX_PER_TILE,PX_PER_TILE));
                 borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
 
-                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*20,PX_PER_TILE,PX_PER_TILE));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*16,PX_PER_TILE,PX_PER_TILE));
                 break;
         }
 

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 public class Font {
     private BitmapFont buttonFont;
     private BitmapFont creditFont;
+    private BitmapFont bigFont;
 
     // #0d171f as a libgdx Color (r, g, b, a) normalized to 0-1
     private static final Color DARK_BLUE = new Color(0x0d / 255f, 0x17 / 255f, 0x1f / 255f, 1f);
@@ -26,6 +27,11 @@ public class Font {
         creditParams.color = DARK_BLUE;
         creditFont = generator.generateFont(creditParams);
 
+        FreeTypeFontParameter bigParams = new FreeTypeFontParameter();
+        bigParams.size = 128;
+        bigParams.color = DARK_BLUE;
+        bigFont = generator.generateFont(bigParams);
+
         generator.dispose(); // dispose generator once all fonts are generated
     }
 
@@ -35,6 +41,10 @@ public class Font {
 
     public BitmapFont getCreditFont() {
         return creditFont;
+    }
+
+    public  BitmapFont getBigFont() {
+        return bigFont;
     }
 
     public void dispose() {
