@@ -24,6 +24,9 @@ public class GameScreen implements Screen {
     private static final float PLAYER_W = 28f;
     private static final float PLAYER_H = 32f;
 
+    private static final float ENEMY_W = 28f;
+    private static final float ENEMY_H = 32f;
+
     private static final float PLAYER_EYE_OFFSET_X = PLAYER_W / 2 - 4;
     private static final float PLAYER_EYE_OFFSET_Y = PLAYER_H / 2 + 6;
     private static final float PLAYER_ANIMATION_DELAY = 0.1f;
@@ -50,7 +53,11 @@ public class GameScreen implements Screen {
     private Texture shotgunTex;
     private Array<Texture> bulletTextures;
 
-    private Array<Bullet> bullets = new Array<>();
+    private Array<Texture> enemyTextures;
+
+    private Array<Bullet> bullets;
+
+    private Array<Enemy> enemies;
 
     private Player player;
     private Level level;
@@ -67,10 +74,14 @@ public class GameScreen implements Screen {
     public GameScreen(Main game) {
         this.game = game;
         this.levelNumber = 1;
+
+        bullets = new Array<>();
+        enemies = new Array<>();
     }
 
     public GameScreen(Main game, int levelNumber) {
-        this.game = game;
+        this(game);
+
         this.levelNumber = levelNumber;
     }
 
@@ -90,12 +101,83 @@ public class GameScreen implements Screen {
         loadPlayer();
 
         bulletTextures = new Array<>();
-        String[] animPaths = {"bullet1.png", "bullet2.png"};
-        for (String path : animPaths) {
-            Texture t = new Texture(Gdx.files.internal(path));
-            t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-            bulletTextures.add(t);
+        {
+            String[] animPaths = {"bullet1.png", "bullet2.png"};
+            for (String path : animPaths) {
+                Texture t = new Texture(Gdx.files.internal(path));
+                t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                bulletTextures.add(t);
+            }
         }
+
+        enemyTextures = new Array<>();
+        {
+            String[] animPaths = {"enemy/still.png"};
+            for (String path : animPaths) {
+                Texture t = new Texture(Gdx.files.internal(path));
+                t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+                enemyTextures.add(t);
+            }
+        }
+
+        spawnEnemies();
+    }
+
+    private void spawnEnemies() {
+
+        Array<Rectangle> borders = level.getBorders();
+        Rectangle tempRect = new Rectangle();
+
+        for (int i = 0; i < level.getEnemyCount(); i++) {
+
+            float x;
+            float y;
+            boolean validPosition;
+
+            do {
+                x = (float) Math.random() * (Level.MAP_WIDTH - 32);
+                y = (float) Math.random() * (Level.MAP_HEIGHT - 32);
+
+                tempRect.set(x, y, ENEMY_W, ENEMY_H);
+                validPosition = true;
+
+                // Check collision with walls
+                for (Rectangle wall : borders) {
+                    if (tempRect.overlaps(wall)) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+
+                for(Enemy e: enemies) {
+                    if(e.getHitbox().overlaps(tempRect)) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+
+                // Optional: avoid spawning too close to player
+                if (tempRect.overlaps(player.getBigHitbox())) {
+                    validPosition = false;
+                }
+
+            } while (!validPosition);
+
+            enemies.add(createEnemy(x, y));
+        }
+    }
+
+    private Enemy createEnemy(float x, float y) {
+        Array<Sprite> sprites = new Array<>();
+
+        for (Texture t : enemyTextures) {
+            Sprite enemySprite = new Sprite(t);
+            enemySprite.setSize(BULLET_W, BULLET_H);
+            sprites.add(enemySprite);
+        }
+
+
+        return new Enemy(x, y, ENEMY_W, ENEMY_H, sprites);
     }
 
     @Override
@@ -107,6 +189,10 @@ public class GameScreen implements Screen {
         batch.begin();
         level.draw(batch);
         player.draw(batch, delta);
+
+        for (Enemy e : enemies) {
+            e.draw(batch);
+        }
 
         for (Bullet b : bullets) {
             b.draw(batch);
@@ -127,6 +213,7 @@ public class GameScreen implements Screen {
         handleInput();
         checkCollisionPlayerMap();
         checkBulletWallCollision();
+        checkBulletEnemyCollision();
 
         // SHOOT
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -156,7 +243,7 @@ public class GameScreen implements Screen {
         Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mouse);
 
-        Vector2 shootingPoint=player.getShootingPoint(camera);
+        Vector2 shootingPoint = player.getShootingPoint(camera);
 
         float centerX = player.getX() + player.getWidth() / 2f;
         float centerY = player.getY() + player.getHeight() / 2f;
@@ -167,7 +254,7 @@ public class GameScreen implements Screen {
         );
 
         Array<Sprite> sprites = new Array<>();
-        for(Texture t : bulletTextures){
+        for (Texture t : bulletTextures) {
             Sprite bulletSprite = new Sprite(t);
             bulletSprite.setSize(BULLET_W, BULLET_H);
             sprites.add(bulletSprite);
@@ -217,6 +304,12 @@ public class GameScreen implements Screen {
         }
 
         for (Texture t : bulletTextures) {
+            if (t != null) {
+                t.dispose();
+            }
+        }
+
+        for (Texture t : enemyTextures) {
             if (t != null) {
                 t.dispose();
             }
@@ -357,16 +450,33 @@ public class GameScreen implements Screen {
         }
     }
 
-    public void checkBulletWallCollision(){
+    public void checkBulletWallCollision() {
         Array<Rectangle> borders = level.getBorders();
         Rectangle intersection = level.getIntersection();
 
         for (Rectangle wall : borders) {
-            for(int i=0; i<bullets.size; i++){
+            for (int i = 0; i < bullets.size; i++) {
                 Rectangle bulletRect = bullets.get(i).getHitbox();
 
                 if (Intersector.intersectRectangles(bulletRect, wall, intersection)) {
                     bullets.removeIndex(i);
+                }
+            }
+        }
+    }
+
+    public void checkBulletEnemyCollision(){
+        Rectangle intersection = level.getIntersection();
+
+        for(int i=0; i<bullets.size; i++){
+            Rectangle bulletRect = bullets.get(i).getHitbox();
+
+            for(int j=0; j<enemies.size; j++){
+                Rectangle enemyRect=enemies.get(j).getHitbox();
+
+                if(Intersector.intersectRectangles(bulletRect, enemyRect, intersection)){
+                    bullets.removeIndex(i);
+                    enemies.removeIndex(j);
                 }
             }
         }

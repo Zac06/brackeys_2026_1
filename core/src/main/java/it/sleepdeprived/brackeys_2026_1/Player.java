@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -27,6 +28,9 @@ public class Player extends Entity {
 
     private boolean animating = false;  // false = show still, true = cycle frames
     private Direction direction = Direction.CENTER;
+
+    private Rectangle bigHitbox;
+    private static final float BIG_HITBOX_SCALE = 3f;
 
     public Player(float x, float y, float width, float height, Sprite stillSprite, Array<Sprite> animationFrames, Sprite eye, float eyeBaseOffsetX, float eyeBaseOffsetY, float frameDuration, Sprite shotgunSprite) {
         super(x, y, width, height, animationFrames);
@@ -55,6 +59,9 @@ public class Player extends Entity {
         this.shotgunSprite.setSize(this.shotgunSprite.getWidth() * scaleX, this.shotgunSprite.getHeight() * scaleY);
 
         //this.shotgunSprite.setOriginCenter();
+
+        this.bigHitbox = new Rectangle();
+        updateBigHitbox();
     }
 
     // --- Animation state ---
@@ -121,6 +128,7 @@ public class Player extends Entity {
         super.setPosition(x, y);
         stillSprite.setPosition(x, y);
         updateEyeSpritePosition();
+        updateBigHitbox();
     }
 
     public void setXPosition(float x) {
@@ -211,5 +219,25 @@ public class Player extends Entity {
 
     public float getShotgunAngle(){
         return shotgunAngle;
+    }
+
+    private void updateBigHitbox() {
+
+        float bigWidth = getWidth() * BIG_HITBOX_SCALE;
+        float bigHeight = getHeight() * BIG_HITBOX_SCALE;
+
+        float centerX = getX() + getWidth() / 2f;
+        float centerY = getY() + getHeight() / 2f;
+
+        bigHitbox.set(
+            centerX - bigWidth / 2f,
+            centerY - bigHeight / 2f,
+            bigWidth,
+            bigHeight
+        );
+    }
+
+    public Rectangle getBigHitbox() {
+        return bigHitbox;
     }
 }

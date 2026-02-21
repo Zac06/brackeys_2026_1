@@ -18,6 +18,8 @@ public class Level {
     public static final float MAP_WIDTH = 40 * PX_PER_TILE;
     public static final float MAP_HEIGHT = 22 * PX_PER_TILE;
 
+    public float enemyCount = 15;
+
     // map / collision
     private Array<Rectangle> borders = new Array<>();
     private Rectangle intersection = new Rectangle();
@@ -49,37 +51,37 @@ public class Level {
         switch (map) {
             case 1:
                 txtPath = "first_level.txt";
-                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*2,PX_PER_TILE,PX_PER_TILE*2));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*4,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * 41, PX_PER_TILE * 2, PX_PER_TILE, PX_PER_TILE * 2));
+                borders.add(new Rectangle(PX_PER_TILE * 40, PX_PER_TILE, PX_PER_TILE, PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * 40, PX_PER_TILE * 4, PX_PER_TILE, PX_PER_TILE));
                 break;
             case 2:
                 txtPath = "second_level.txt";
 
-                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*20,PX_PER_TILE,PX_PER_TILE));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*16,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * 41, PX_PER_TILE * 17, PX_PER_TILE, PX_PER_TILE * 3));
+                borders.add(new Rectangle(PX_PER_TILE * 40, PX_PER_TILE * 20, PX_PER_TILE, PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * 40, PX_PER_TILE * 16, PX_PER_TILE, PX_PER_TILE));
                 break;
             case 3:
                 txtPath = "third_level.txt";
-                borders.add(new Rectangle(PX_PER_TILE*41,PX_PER_TILE*2,PX_PER_TILE,PX_PER_TILE*3));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
-                borders.add(new Rectangle(PX_PER_TILE*40,PX_PER_TILE*5,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * 41, PX_PER_TILE * 2, PX_PER_TILE, PX_PER_TILE * 3));
+                borders.add(new Rectangle(PX_PER_TILE * 40, PX_PER_TILE, PX_PER_TILE, PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * 40, PX_PER_TILE * 5, PX_PER_TILE, PX_PER_TILE));
                 break;
             default:
                 throw new IllegalArgumentException("Unknown map index: " + map);
         }
 
-        switch (map){
-            case 1,3:
-                borders.add(new Rectangle(PX_PER_TILE*-2,PX_PER_TILE*17,PX_PER_TILE,PX_PER_TILE*3));
-                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*20,PX_PER_TILE,PX_PER_TILE));
-                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*16,PX_PER_TILE,PX_PER_TILE));
+        switch (map) {
+            case 1, 3:
+                borders.add(new Rectangle(PX_PER_TILE * -2, PX_PER_TILE * 17, PX_PER_TILE, PX_PER_TILE * 3));
+                borders.add(new Rectangle(PX_PER_TILE * -1, PX_PER_TILE * 20, PX_PER_TILE, PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * -1, PX_PER_TILE * 16, PX_PER_TILE, PX_PER_TILE));
                 break;
             case 2:
-                borders.add(new Rectangle(PX_PER_TILE*-2,PX_PER_TILE*2,PX_PER_TILE,PX_PER_TILE*3));
-                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE*5,PX_PER_TILE,PX_PER_TILE));
-                borders.add(new Rectangle(PX_PER_TILE*-1,PX_PER_TILE,PX_PER_TILE,PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * -2, PX_PER_TILE * 2, PX_PER_TILE, PX_PER_TILE * 3));
+                borders.add(new Rectangle(PX_PER_TILE * -1, PX_PER_TILE * 5, PX_PER_TILE, PX_PER_TILE));
+                borders.add(new Rectangle(PX_PER_TILE * -1, PX_PER_TILE, PX_PER_TILE, PX_PER_TILE));
 
                 break;
         }
@@ -136,6 +138,10 @@ public class Level {
 
     public Rectangle getIntersection() {
         return intersection;
+    }
+
+    public float getEnemyCount() {
+        return enemyCount;
     }
 
     public Array<Rectangle> getBorders() {
