@@ -30,7 +30,7 @@ public class GameScreen implements Screen {
 
     private static final float BULLET_W = 16f;
     private static final float BULLET_H = 12f;
-    private static final float BULLET_SPEED = 64f;
+    private static final float BULLET_SPEED = 128f;
 
 
     // ── fields ────────────────────────────────────────────────────────────────
@@ -126,6 +126,7 @@ public class GameScreen implements Screen {
 
         handleInput();
         checkCollisionPlayerMap();
+        checkBulletWallCollision();
 
         // SHOOT
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -335,7 +336,6 @@ public class GameScreen implements Screen {
             uscito = 2;
         }
 
-
         for (Rectangle wall : borders) {
             if (Intersector.intersectRectangles(playerRect, wall, intersection)) {
                 if (intersection.height > intersection.width) {
@@ -355,7 +355,21 @@ public class GameScreen implements Screen {
                 }
             }
         }
-        //System.out.println("u: " + uscito);
+    }
+
+    public void checkBulletWallCollision(){
+        Array<Rectangle> borders = level.getBorders();
+        Rectangle intersection = level.getIntersection();
+
+        for (Rectangle wall : borders) {
+            for(int i=0; i<bullets.size; i++){
+                Rectangle bulletRect = bullets.get(i).getHitbox();
+
+                if (Intersector.intersectRectangles(bulletRect, wall, intersection)) {
+                    bullets.removeIndex(i);
+                }
+            }
+        }
     }
 
     public int getUscito() {
