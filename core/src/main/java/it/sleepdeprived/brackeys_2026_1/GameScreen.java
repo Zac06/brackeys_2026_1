@@ -155,7 +155,7 @@ public class GameScreen implements Screen {
         Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mouse);
 
-        Vector2 shootingPoint=player.getShootingPoint(camera, 0);
+        Vector2 shootingPoint=player.getShootingPoint(camera);
 
         float centerX = player.getX() + player.getWidth() / 2f;
         float centerY = player.getY() + player.getHeight() / 2f;
@@ -181,7 +181,6 @@ public class GameScreen implements Screen {
             direction,
             BULLET_SPEED
         );
-
         bullets.add(bullet);
     }
 

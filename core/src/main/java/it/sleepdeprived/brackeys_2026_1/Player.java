@@ -190,7 +190,7 @@ public class Player extends Entity {
         );
     }
 
-    public Vector2 getShootingPoint(OrthographicCamera camera, int bulletHeight){
+    public Vector2 getShootingPoint(OrthographicCamera camera){
         Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mouse);
 
