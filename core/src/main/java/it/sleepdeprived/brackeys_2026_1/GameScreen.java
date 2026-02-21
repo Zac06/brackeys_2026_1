@@ -214,6 +214,7 @@ public class GameScreen implements Screen {
         checkCollisionPlayerMap();
         checkBulletWallCollision();
         checkBulletEnemyCollision();
+        checkPlayerEnemyCollision();
 
         // SHOOT
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -478,6 +479,19 @@ public class GameScreen implements Screen {
                     bullets.removeIndex(i);
                     enemies.removeIndex(j);
                 }
+            }
+        }
+    }
+
+    public void checkPlayerEnemyCollision(){
+        Rectangle intersection = level.getIntersection();
+
+        for(int i=0; i<enemies.size; i++){
+            Rectangle enemyRect=enemies.get(i).getHitbox();
+            Rectangle playerRect=player.getHitbox();
+
+            if(Intersector.intersectRectangles(enemyRect, playerRect, intersection)){
+                game.setScreen(new ExitScreen(game, "u r ded :b", levelNumber, 2000));
             }
         }
     }
