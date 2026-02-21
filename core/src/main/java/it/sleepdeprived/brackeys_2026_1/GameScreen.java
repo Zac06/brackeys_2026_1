@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -26,6 +28,10 @@ public class GameScreen implements Screen {
     private static final float PLAYER_EYE_OFFSET_Y = PLAYER_H / 2 + 6;
     private static final float PLAYER_ANIMATION_DELAY = 0.1f;
 
+    private static final float BULLET_W = 16f;
+    private static final float BULLET_H = 12f;
+    private static final float BULLET_SPEED = 64f;
+
 
     // ── fields ────────────────────────────────────────────────────────────────
     private final Main game;
@@ -41,6 +47,10 @@ public class GameScreen implements Screen {
     private Texture stillTex;
     private Texture eyeTex;
     private Array<Texture> animationTextures;
+    private Texture shotgunTex;
+    private Array<Texture> bulletTextures;
+
+    private Array<Bullet> bullets = new Array<>();
 
     private Player player;
     private Level level;
@@ -78,14 +88,35 @@ public class GameScreen implements Screen {
         level = new Level(levelNumber);
 
         loadPlayer();
+
+        bulletTextures = new Array<>();
+        String[] animPaths = {"bullet1.png", "bullet2.png"};
+        for (String path : animPaths) {
+            Texture t = new Texture(Gdx.files.internal(path));
+            t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            bulletTextures.add(t);
+        }
     }
 
     @Override
     public void render(float delta) {
+        update(delta);
+
         UnifiedColorClearer.clear();
 
-        handleInput();
-        checkCollisionPlayerMap();
+        batch.begin();
+        level.draw(batch);
+        player.draw(batch, delta);
+
+        for (Bullet b : bullets) {
+            b.draw(batch);
+        }
+
+        batch.end();
+    }
+
+    public void update(float delta) {
+        player.update(delta, camera);
 
         camera.position.set(
             player.getX() + PLAYER_W / 2f,
@@ -93,14 +124,65 @@ public class GameScreen implements Screen {
             0
         );
 
-        //camera.update();
+        handleInput();
+        checkCollisionPlayerMap();
+
+        // SHOOT
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            shoot();
+        }
+
+        // Update bullets
+        for (int i = bullets.size - 1; i >= 0; i--) {
+            Bullet b = bullets.get(i);
+            b.update(delta);
+
+            // Remove if outside map
+            if (b.getX() < 0 || b.getX() > Level.MAP_WIDTH ||
+                b.getY() < 0 || b.getY() > Level.MAP_HEIGHT) {
+                bullets.removeIndex(i);
+                //System.out.println("Bullet was removed!");
+            }
+        }
+
         updateCamera();
         batch.setProjectionMatrix(camera.combined);
+    }
 
-        batch.begin();
-        level.draw(batch);
-        player.draw(batch, delta);
-        batch.end();
+    private void shoot() {
+
+        // Get mouse world position
+        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mouse);
+
+        Vector2 shootingPoint=player.getShootingPoint(camera, 0);
+
+        float centerX = player.getX() + player.getWidth() / 2f;
+        float centerY = player.getY() + player.getHeight() / 2f;
+
+        Vector2 direction = new Vector2(
+            mouse.x - centerX,
+            mouse.y - centerY
+        );
+
+        Array<Sprite> sprites = new Array<>();
+        for(Texture t : bulletTextures){
+            Sprite bulletSprite = new Sprite(t);
+            bulletSprite.setSize(BULLET_W, BULLET_H);
+            sprites.add(bulletSprite);
+        }
+
+        Bullet bullet = new Bullet(
+            shootingPoint.x,
+            shootingPoint.y,
+            BULLET_W,
+            BULLET_H,
+            sprites,
+            direction,
+            BULLET_SPEED
+        );
+
+        bullets.add(bullet);
     }
 
     @Override
@@ -124,11 +206,20 @@ public class GameScreen implements Screen {
             eyeTex.dispose();
         }
 
+        if (shotgunTex != null) {
+            shotgunTex.dispose();
+        }
+
         for (Texture t : animationTextures) {
             if (t != null) {
                 t.dispose();
             }
+        }
 
+        for (Texture t : bulletTextures) {
+            if (t != null) {
+                t.dispose();
+            }
         }
     }
 
@@ -211,6 +302,11 @@ public class GameScreen implements Screen {
         eyeTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         Sprite eyeSprite = new Sprite(eyeTex);
 
+        // shotgun sprite
+        shotgunTex = new Texture(Gdx.files.internal("shotgun.png"));
+        shotgunTex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        Sprite shotgunSprite = new Sprite(shotgunTex);
+
         player = new Player(
             level.getPlayerStartX(), level.getPlayerStartY(),
             PLAYER_W, PLAYER_H,
@@ -218,7 +314,8 @@ public class GameScreen implements Screen {
             animationSprites,
             eyeSprite,
             PLAYER_EYE_OFFSET_X, PLAYER_EYE_OFFSET_Y,
-            PLAYER_ANIMATION_DELAY
+            PLAYER_ANIMATION_DELAY,
+            shotgunSprite
         );
     }
 
@@ -229,14 +326,14 @@ public class GameScreen implements Screen {
 
         Rectangle playerRect = player.getHitbox();
 
-        if(player.getX()<-30){
-            uscito=0;
+        if (player.getX() < -30) {
+            uscito = 0;
             game.setScreen(new ExitScreen(game, "Wrong exit! :(", levelNumber, 2000));
-        }else if(player.getX()>WindowProperties.WIN_WIDTH){
-            uscito=1;
+        } else if (player.getX() > WindowProperties.WIN_WIDTH) {
+            uscito = 1;
             game.setScreen(new ExitScreen(game, "You passed the level! :)", levelNumber, 2000));
-        }else{
-            uscito=2;
+        } else {
+            uscito = 2;
         }
 
 
@@ -259,7 +356,7 @@ public class GameScreen implements Screen {
                 }
             }
         }
-        System.out.println("u: " + uscito);
+        //System.out.println("u: " + uscito);
     }
 
     public int getUscito() {

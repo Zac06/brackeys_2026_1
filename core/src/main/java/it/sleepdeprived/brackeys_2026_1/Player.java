@@ -1,7 +1,12 @@
 package it.sleepdeprived.brackeys_2026_1;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 public class Player extends Entity {
@@ -9,17 +14,21 @@ public class Player extends Entity {
     private final Sprite stillSprite;   // single still frame
     private final Sprite eyeSprite;
 
+    private final Sprite shotgunSprite;
+    private float shotgunAngle;
+
     private float eyeSpriteBaseOffsetX;
     private float eyeSpriteBaseOffsetY;
     private float eyeSpriteShiftX;
     private float eyeSpriteShiftY;
 
     private static final float eyeSprite_SHIFT = 4f;
+    private static final float SHOTGUN_OFFSET=16f;
 
     private boolean animating = false;  // false = show still, true = cycle frames
     private Direction direction = Direction.CENTER;
 
-    public Player(float x, float y, float width, float height, Sprite stillSprite, Array<Sprite> animationFrames, Sprite eye, float eyeBaseOffsetX, float eyeBaseOffsetY, float frameDuration) {
+    public Player(float x, float y, float width, float height, Sprite stillSprite, Array<Sprite> animationFrames, Sprite eye, float eyeBaseOffsetX, float eyeBaseOffsetY, float frameDuration, Sprite shotgunSprite) {
         super(x, y, width, height, animationFrames);
 
         this.eyeSprite = eye;
@@ -40,6 +49,12 @@ public class Player extends Entity {
         this.eyeSprite.setSize(eye.getRegionWidth() * scaleX, eye.getRegionHeight() * scaleY);
 
         updateEyeSpritePosition();
+
+        this.shotgunSprite = shotgunSprite;
+        this.shotgunAngle=0;
+        this.shotgunSprite.setSize(this.shotgunSprite.getWidth() * scaleX, this.shotgunSprite.getHeight() * scaleY);
+
+        //this.shotgunSprite.setOriginCenter();
     }
 
     // --- Animation state ---
@@ -126,12 +141,13 @@ public class Player extends Entity {
 
     public void draw(SpriteBatch batch, float delta) {
         if (animating) {
-            update(delta);          // advance animation frame in Entity
             super.draw(batch);      // draw current animation frame
         } else {
             stillSprite.draw(batch);
         }
         eyeSprite.draw(batch);
+
+        shotgunSprite.draw(batch);
     }
 
     public Direction getDirection() {
@@ -146,5 +162,54 @@ public class Player extends Entity {
         this.eyeSpriteBaseOffsetX = x;
         this.eyeSpriteBaseOffsetY = y;
         updateEyeSpritePosition();
+    }
+
+    public void update(float delta, OrthographicCamera camera) {
+
+        // keep your animation update
+        super.update(delta);
+
+        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mouse);
+
+        float centerX = getX() + getWidth() / 2f;
+        float centerY = getY() + getHeight() / 2f;
+
+        float dx = mouse.x - centerX;
+        float dy = mouse.y - centerY;
+
+        float shotgunAngleRadians=MathUtils.atan2(dy, dx);
+        shotgunAngle = shotgunAngleRadians * MathUtils.radiansToDegrees;
+
+        this.shotgunSprite.setOrigin(0, this.shotgunSprite.getHeight() / 2);
+        shotgunSprite.setRotation(shotgunAngle);
+        shotgunSprite.setPosition(
+            (float) (centerX+SHOTGUN_OFFSET*(Math.cos(shotgunAngleRadians))),
+            //centerY - shotgunSprite.getHeight() / 2f
+            (float)(centerY+SHOTGUN_OFFSET*(Math.sin(shotgunAngleRadians)))
+        );
+    }
+
+    public Vector2 getShootingPoint(OrthographicCamera camera, int bulletHeight){
+        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mouse);
+
+        float centerX = getX() + getWidth() / 2f;
+        float centerY = getY() + getHeight() / 2f;
+
+        float dx = mouse.x - centerX;
+        float dy = mouse.y - centerY;
+
+        float shotgunAngleRadians=MathUtils.atan2(dy, dx);
+        shotgunAngle = shotgunAngleRadians * MathUtils.radiansToDegrees;
+
+        return new Vector2(
+            (float) (centerX+(SHOTGUN_OFFSET+shotgunSprite.getWidth())*(Math.cos(shotgunAngleRadians))),
+            (float) (centerY+(SHOTGUN_OFFSET+shotgunSprite.getWidth())*(Math.sin(shotgunAngleRadians)))
+            );
+    }
+
+    public float getShotgunAngle(){
+        return shotgunAngle;
     }
 }
