@@ -35,6 +35,8 @@ public class GameScreen implements Screen {
     private static final float BULLET_H = 12f;
     private static final float BULLET_SPEED = 128f;
 
+    private static final float ENEMY_SPEED = 64f;
+
 
     // ── fields ────────────────────────────────────────────────────────────────
     private final Main game;
@@ -215,6 +217,7 @@ public class GameScreen implements Screen {
         checkBulletWallCollision();
         checkBulletEnemyCollision();
         checkPlayerEnemyCollision();
+        checkPlayerBulletCollision();
 
         // SHOOT
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -234,8 +237,51 @@ public class GameScreen implements Screen {
             }
         }
 
+        updateEnemies(delta);
+
         updateCamera();
         batch.setProjectionMatrix(camera.combined);
+    }
+
+    private void updateEnemies(float delta) {
+
+        Array<Rectangle> borders = level.getBorders();
+
+        float playerCenterX = player.getX() + player.getWidth() / 2f;
+        float playerCenterY = player.getY() + player.getHeight() / 2f;
+
+        for (Enemy e : enemies) {
+
+            float enemyCenterX = e.getX() + e.getWidth() / 2f;
+            float enemyCenterY = e.getY() + e.getHeight() / 2f;
+
+            if (hasLineOfSight(enemyCenterX, enemyCenterY, playerCenterX, playerCenterY, borders)) {
+
+                Vector2 direction = new Vector2(
+                    playerCenterX - enemyCenterX,
+                    playerCenterY - enemyCenterY
+                ).nor(); // normalize
+
+                float newX = e.getX() + direction.x * ENEMY_SPEED * delta;
+                float newY = e.getY() + direction.y * ENEMY_SPEED * delta;
+
+                e.setPosition(newX, newY);
+            }
+        }
+    }
+
+    private boolean hasLineOfSight(float x1, float y1, float x2, float y2, Array<Rectangle> walls) {
+
+        for (Rectangle wall : walls) {
+            if (Intersector.intersectSegmentRectangle(
+                new Vector2(x1, y1),
+                new Vector2(x2, y2),
+                wall)) {
+                return false; // wall blocks vision
+            }
+        }
+
+        return true; // no wall blocking
     }
 
     private void shoot() {
@@ -492,6 +538,19 @@ public class GameScreen implements Screen {
 
             if(Intersector.intersectRectangles(enemyRect, playerRect, intersection)){
                 game.setScreen(new ExitScreen(game, "u r ded :b", levelNumber, 2000));
+            }
+        }
+    }
+
+    public void checkPlayerBulletCollision(){
+        Rectangle intersection = level.getIntersection();
+
+        for(int i=0; i<bullets.size; i++){
+            Rectangle bulletRect=bullets.get(i).getHitbox();
+            Rectangle playerRect=player.getHitbox();
+
+            if(Intersector.intersectRectangles(bulletRect, playerRect, intersection)){
+                game.setScreen(new ExitScreen(game, "u just shot yourself :o", levelNumber, 3000));
             }
         }
     }
