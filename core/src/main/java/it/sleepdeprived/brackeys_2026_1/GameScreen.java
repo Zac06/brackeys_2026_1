@@ -528,20 +528,21 @@ public class GameScreen implements Screen {
         }
     }
 
-    public void checkBulletEnemyCollision(){
+    public void checkBulletEnemyCollision() {
         Rectangle intersection = level.getIntersection();
 
-        for(int i=0; i<bullets.size; i++){
+        for (int i = bullets.size - 1; i >= 0; i--) {
             Rectangle bulletRect = bullets.get(i).getHitbox();
 
-            for(int j=0; j<enemies.size; j++){
-                Rectangle enemyRect=enemies.get(j).getHitbox();
+            for (int j = enemies.size - 1; j >= 0; j--) {
+                Rectangle enemyRect = enemies.get(j).getHitbox();
 
-                if(Intersector.intersectRectangles(bulletRect, enemyRect, intersection)){
+                if (Intersector.intersectRectangles(bulletRect, enemyRect, intersection)) {
                     bullets.removeIndex(i);
                     enemies.removeIndex(j);
 
                     SoundPlayer.play("kill");
+                    break; // stop checking this bullet against other enemies
                 }
             }
         }
