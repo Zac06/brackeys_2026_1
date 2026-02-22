@@ -56,6 +56,7 @@ public class GameScreen implements Screen {
     private Array<Texture> bulletTextures;
 
     private Array<Texture> enemyTextures;
+    private Texture stillEnemyTex;
 
     private Array<Bullet> bullets;
 
@@ -114,13 +115,15 @@ public class GameScreen implements Screen {
 
         enemyTextures = new Array<>();
         {
-            String[] animPaths = {"enemy/still.png"};
+            String[] animPaths = {"enemy/step1.png","enemy/step2.png"};
             for (String path : animPaths) {
                 Texture t = new Texture(Gdx.files.internal(path));
                 t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
                 enemyTextures.add(t);
             }
         }
+
+        stillEnemyTex=new Texture(Gdx.files.internal("enemy/still.png"));
 
         spawnEnemies();
     }
@@ -171,6 +174,7 @@ public class GameScreen implements Screen {
 
     private Enemy createEnemy(float x, float y) {
         Array<Sprite> sprites = new Array<>();
+        Sprite stillEnemySprite=new Sprite(stillEnemyTex);
 
         for (Texture t : enemyTextures) {
             Sprite enemySprite = new Sprite(t);
@@ -179,7 +183,7 @@ public class GameScreen implements Screen {
         }
 
 
-        return new Enemy(x, y, ENEMY_W, ENEMY_H, sprites);
+        return new Enemy(x, y, ENEMY_W, ENEMY_H, sprites, stillEnemySprite);
     }
 
     @Override
@@ -218,6 +222,7 @@ public class GameScreen implements Screen {
         checkBulletEnemyCollision();
         checkPlayerEnemyCollision();
         checkPlayerBulletCollision();
+        checkEnemyWallsCollision();
 
         // SHOOT
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -266,7 +271,12 @@ public class GameScreen implements Screen {
                 float newY = e.getY() + direction.y * ENEMY_SPEED * delta;
 
                 e.setPosition(newX, newY);
+                e.setMoving(true);
+            }else{
+                e.setMoving(false);
             }
+
+            e.update(delta);
         }
     }
 
@@ -361,6 +371,8 @@ public class GameScreen implements Screen {
                 t.dispose();
             }
         }
+
+        stillEnemyTex.dispose();
     }
 
     @Override
@@ -551,6 +563,41 @@ public class GameScreen implements Screen {
 
             if(Intersector.intersectRectangles(bulletRect, playerRect, intersection)){
                 game.setScreen(new ExitScreen(game, "u just shot yourself :o", levelNumber, 3000));
+            }
+        }
+    }
+
+    public void checkEnemyWallsCollision(){
+        Rectangle intersection = level.getIntersection();
+
+        for(Enemy e : enemies){
+            checkCollisionEnemyMap(e);
+        }
+    }
+
+    private void checkCollisionEnemyMap(Enemy e) {
+        Array<Rectangle> borders = level.getBorders();
+        Rectangle intersection = level.getIntersection();
+
+        Rectangle enemyRect = e.getHitbox();
+
+        for (Rectangle wall : borders) {
+            if (Intersector.intersectRectangles(enemyRect, wall, intersection)) {
+                if (intersection.height > intersection.width) {
+                    // Lateral collision (left / right)
+                    if (e.getX() <= wall.x) {
+                        e.setPosition(wall.x - enemyRect.width, e.getY());
+                    } else {
+                        e.setPosition(wall.x + wall.width, e.getY());
+                    }
+                } else {
+                    // Vertical collision (up / down)
+                    if (e.getY() <= wall.y) {
+                        e.setPosition(e.getX(), wall.y - enemyRect.height);
+                    } else {
+                        e.setPosition(e.getX(), wall.y + wall.height);
+                    }
+                }
             }
         }
     }

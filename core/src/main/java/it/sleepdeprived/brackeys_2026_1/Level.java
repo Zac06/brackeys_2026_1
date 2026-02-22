@@ -18,7 +18,7 @@ public class Level {
     public static final float MAP_WIDTH = 40 * PX_PER_TILE;
     public static final float MAP_HEIGHT = 22 * PX_PER_TILE;
 
-    public float enemyCount = 15;
+    public int enemyCount = 15;
 
     // map / collision
     private Array<Rectangle> borders = new Array<>();
@@ -111,6 +111,14 @@ public class Level {
                         playerStartY = sc.nextInt();
                     }
                 }
+
+                String enemyLine = in.readLine();
+                if (enemyLine != null) {
+                    Scanner sc = new Scanner(enemyLine);
+                    if (sc.hasNextInt()) {
+                        enemyCount = sc.nextInt();
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -140,7 +148,7 @@ public class Level {
         return intersection;
     }
 
-    public float getEnemyCount() {
+    public int getEnemyCount() {
         return enemyCount;
     }
 
