@@ -32,6 +32,8 @@ public class Player extends Entity {
     private Rectangle bigHitbox;
     private static final float BIG_HITBOX_SCALE = 3f;
 
+
+
     public Player(float x, float y, float width, float height, Sprite stillSprite, Array<Sprite> animationFrames, Sprite eye, float eyeBaseOffsetX, float eyeBaseOffsetY, float frameDuration, Sprite shotgunSprite) {
         super(x, y, width, height, animationFrames);
 

@@ -28,6 +28,7 @@ Ho inserito tra i file assets/ui/
 // dimensioni schermo : WindowProperties.WIN_WIDTH WindowProperties.WIN_HEIGHT
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Main extends Game {
@@ -38,7 +39,10 @@ public class Main extends Game {
     public void create() {
         batch = new SpriteBatch();
         font = new Font();
+        SoundPlayer.init();
+
         setScreen(new MenuScreen(this));
+
     }
 
     @Override
@@ -50,6 +54,8 @@ public class Main extends Game {
     public void dispose() {
         batch.dispose();
         font.dispose();
+
+        SoundPlayer.dispose();
     }
 
     public SpriteBatch getBatch() {

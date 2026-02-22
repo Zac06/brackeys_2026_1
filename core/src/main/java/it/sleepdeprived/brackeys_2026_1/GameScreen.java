@@ -3,6 +3,7 @@ package it.sleepdeprived.brackeys_2026_1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -227,6 +228,7 @@ public class GameScreen implements Screen {
         // SHOOT
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             shoot();
+            SoundPlayer.play("shoot");
         }
 
         // Update bullets
@@ -480,9 +482,11 @@ public class GameScreen implements Screen {
 
         if (player.getX() < -30) {
             uscito = 0;
+            SoundPlayer.play("notpass");
             game.setScreen(new ExitScreen(game, "Wrong exit! :(", levelNumber, 2000));
         } else if (player.getX() > WindowProperties.WIN_WIDTH) {
             uscito = 1;
+            SoundPlayer.play("pass");
             game.setScreen(new ExitScreen(game, "You passed the level! :)", levelNumber, 2000));
         } else {
             uscito = 2;
@@ -536,6 +540,8 @@ public class GameScreen implements Screen {
                 if(Intersector.intersectRectangles(bulletRect, enemyRect, intersection)){
                     bullets.removeIndex(i);
                     enemies.removeIndex(j);
+
+                    SoundPlayer.play("kill");
                 }
             }
         }
@@ -549,6 +555,7 @@ public class GameScreen implements Screen {
             Rectangle playerRect=player.getHitbox();
 
             if(Intersector.intersectRectangles(enemyRect, playerRect, intersection)){
+                SoundPlayer.play("notpass");
                 game.setScreen(new ExitScreen(game, "u r ded :b", levelNumber, 2000));
             }
         }
@@ -562,6 +569,7 @@ public class GameScreen implements Screen {
             Rectangle playerRect=player.getHitbox();
 
             if(Intersector.intersectRectangles(bulletRect, playerRect, intersection)){
+                SoundPlayer.play("notpass");
                 game.setScreen(new ExitScreen(game, "u just shot yourself :o", levelNumber, 3000));
             }
         }

@@ -23,7 +23,7 @@ public class Font {
         buttonFont = generator.generateFont(buttonParams);
 
         FreeTypeFontParameter creditParams = new FreeTypeFontParameter();
-        creditParams.size = 24;
+        creditParams.size = 32;
         creditParams.color = DARK_BLUE;
         creditFont = generator.generateFont(creditParams);
 

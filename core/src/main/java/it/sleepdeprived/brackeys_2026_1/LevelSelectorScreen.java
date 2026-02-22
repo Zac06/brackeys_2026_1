@@ -214,6 +214,7 @@ public class LevelSelectorScreen implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     currentLevelNumber--;
+                    SoundPlayer.play("select");
                     reloadUI();
                 }
             });
@@ -238,6 +239,7 @@ public class LevelSelectorScreen implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     currentLevelNumber++;
+                    SoundPlayer.play("select");
                     reloadUI();
                 }
             });
@@ -260,6 +262,7 @@ public class LevelSelectorScreen implements Screen {
         startBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                SoundPlayer.play("select");
                 game.setScreen(new GameScreen(game, currentLevelNumber));
             }
         });
